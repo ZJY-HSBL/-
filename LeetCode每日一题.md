@@ -122,3 +122,48 @@ int maxHeightOfTriangle(int red, int blue) {
   - 每成功构建一行，对应的高度计数器（`height1`或`height2`）就增加1。
 - **返回值**：
   - 函数最后比较两种情况下的高度，返回较大的那个值作为结果。
+
+## 2024.10.21
+
+### 910. 最小差值 II
+
+给你一个整数数组 nums，和一个整数 k 。
+
+对于每个下标 i（0 <= i < nums.length），将 nums[i] 变成 nums[i] + k 或 nums[i] - k 。
+
+nums 的 分数 是 nums 中最大元素和最小元素的差值。
+
+在更改每个下标对应的值之后，返回 nums 的最小 分数 。
+
+~~~c
+// 比较函数，用于qsort排序
+int compare(const void *a, const void *b) {
+     // 解引用并转换指针类型为int，然后返回两者的差值
+    return (*(int *)a - *(int *)b);
+}
+// 计算最小范围的函数
+int smallestRangeII(int* nums, int numsSize, int k) {
+    // 使用qsort对数组进行升序排序
+    qsort(nums, numsSize, sizeof(int), compare);
+
+    // 初始化最小分数为排序后的最大值与最小值之差
+    int minScore = nums[numsSize - 1] - nums[0];
+
+    // 遍历数组，寻找可能的最小范围
+    for (int i = 0; i < numsSize - 1; ++i) {
+        // 计算当前分割点下的最大值
+        int maxVal = (nums[i] + k > nums[numsSize - 1] - k) ? nums[i] + k : nums[numsSize - 1] - k;
+        // 计算当前分割点下的最小值
+        int minVal = (nums[0] + k < nums[i + 1] - k) ? nums[0] + k : nums[i + 1] - k;
+
+        // 计算当前分割点下的分数
+        int currentScore = maxVal - minVal;
+        // 如果当前分数小于已知的最小分数，则更新最小分数
+        if (currentScore < minScore) {
+            minScore = currentScore;
+        }
+    }
+    // 返回计算得到的最小分数
+    return minScore;
+}
+~~~
