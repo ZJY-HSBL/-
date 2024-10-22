@@ -167,3 +167,35 @@ int smallestRangeII(int* nums, int numsSize, int k) {
     return minScore;
 }
 ~~~
+
+## 2024.10.22
+
+### 3184.构成整天的下标对数目 I
+
+给你一个整数数组 hours，表示以 小时 为单位的时间，返回一个整数，表示满足 i < j 且 hours[i] + hours[j] 构成 整天 的下标对 i, j 的数目。
+
+整天 定义为时间持续时间是 24 小时的 整数倍 。
+
+例如，1 天是 24 小时，2 天是 48 小时，3 天是 72 小时，以此类推。
+
+~~~c
+int countCompleteDayPairs(int* hours, int hoursSize) 
+{
+    int res=0;
+    // 外层循环，遍历数组中的每一个元素
+    for(int i=0;i<hoursSize;i++)
+    {
+        // 内层循环，从当前元素的下一个元素开始遍历，确保 i < j
+        for(int j=i+1;j<hoursSize;++j)
+        {
+            // 检查当前两个元素的和是否是 24 的整数倍
+            if(!((hours[i]+hours[j])%24))
+            {
+                // 如果是，则计数器加 1
+                res++;
+            }
+        }
+    }
+    return res;
+}
+~~~
