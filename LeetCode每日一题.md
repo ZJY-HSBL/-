@@ -2,9 +2,9 @@
 
 ### 3158.求出出现两次数字的 XOR 值
 
-给你一个数组 nums ，数组中的数字 要么 出现一次，要么 出现两次。
+给你一个数组 `nums` ，数组中的数字 **要么** 出现一次，**要么** 出现两次。
 
-请你返回数组中所有出现两次数字的按位 XOR 值，如果没有数字出现过两次，返回 0 。
+请你返回数组中所有出现两次数字的按位 `XOR` 值，如果没有数字出现过两次，返回 0 。
 
 ~~~c
 int duplicateNumbersXOR(int* nums, int numsSize) 
@@ -52,11 +52,12 @@ int duplicateNumbersXOR(int* nums, int numsSize)
 
 ## 2024.10.15
 ### 3200.三角形的最大高度
-给你两个整数 red 和 blue，分别表示红色球和蓝色球的数量。你需要使用这些球来组成一个三角形，满足第 1 行有 1 个球，第 2 行有 2 个球，第 3 行有 3 个球，依此类推。
+给你两个整数 `red` 和 `blue`，分别表示红色球和蓝色球的数量。你需要使用这些球来组成一个三角形，满足第 1 行有 1 个球，第 2 行有 2 个球，第 3 行有 3 个球，依此类推。
 
-每一行的球必须是 相同 颜色，且相邻行的颜色必须 不同。
+每一行的球必须是 **相同** 颜色，且相邻行的颜色必须 **不同**。
 
-返回可以实现的三角形的 最大 高度。
+返回可以实现的三角形的 **最大** 高度。
+
 ~~~c
 int maxHeightOfTriangle(int red, int blue) {
     ///若是第一行为红球，那么奇数行都是红色，偶数行是蓝色
@@ -127,13 +128,13 @@ int maxHeightOfTriangle(int red, int blue) {
 
 ### 910. 最小差值 II
 
-给你一个整数数组 nums，和一个整数 k 。
+给你一个整数数组 `nums`，和一个整数 `k` 。
 
-对于每个下标 i（0 <= i < nums.length），将 nums[i] 变成 nums[i] + k 或 nums[i] - k 。
+对于每个下标 `i`（`0 <= i < nums.length`），将 `nums[i]` 变成 `nums[i] + k` 或 `nums[i] - k` 。
 
-nums 的 分数 是 nums 中最大元素和最小元素的差值。
+`nums` 的 **分数** 是 `nums` 中最大元素和最小元素的差值。
 
-在更改每个下标对应的值之后，返回 nums 的最小 分数 。
+在更改每个下标对应的值之后，返回 `nums` 的最小 **分数** 。
 
 ~~~c
 // 比较函数，用于qsort排序
@@ -170,11 +171,11 @@ int smallestRangeII(int* nums, int numsSize, int k) {
 
 ## 2024.10.22
 
-### 3184.构成整天的下标对数目 I
+### 3184.构成整天的下标对数目I
 
-给你一个整数数组 hours，表示以 小时 为单位的时间，返回一个整数，表示满足 i < j 且 hours[i] + hours[j] 构成 整天 的下标对 i, j 的数目。
+给你一个整数数组 `hours`，表示以 **小时** 为单位的时间，返回一个整数，表示满足 `i < j` 且 `hours[i] + hours[j]` 构成 **整天** 的下标对 `i`, `j` 的数目。
 
-整天 定义为时间持续时间是 24 小时的 整数倍 。
+**整天** 定义为时间持续时间是 24 小时的 **整数倍** 。
 
 例如，1 天是 24 小时，2 天是 48 小时，3 天是 72 小时，以此类推。
 
@@ -199,3 +200,78 @@ int countCompleteDayPairs(int* hours, int hoursSize)
     return res;
 }
 ~~~
+
+## 2024.10.23
+
+### 3185.构成整天的下标数目II
+
+给你一个整数数组 `hours`，表示以 **小时** 为单位的时间，返回一个整数，表示满足 `i < j` 且 `hours[i] + hours[j]` 构成 **整天** 的下标对 `i`, `j` 的数目。
+
+**整天** 定义为时间持续时间是 24 小时的 **整数倍** 。
+
+例如，1 天是 24 小时，2 天是 48 小时，3 天是 72 小时，以此类推。
+
+~~~C
+long long countCompleteDayPairs(int* hours, int hoursSize) {
+    // 创建一个大小为 24 的数组来记录每个余数出现的次数
+    int remainder_count[24] = {0};
+    long long count = 0;
+
+    for (int i = 0; i < hoursSize; ++i) {
+        // 计算当前时间点对 24 取模后的余数
+        int current_remainder = hours[i] % 24;
+        // 计算需要的余数
+        int needed_remainder = (24 - current_remainder) % 24;
+        // 累加满足条件的对数
+        count += remainder_count[needed_remainder];
+        // 更新当前余数的出现次数
+        remainder_count[current_remainder]++;
+    }
+
+    return count;
+}
+
+/*
+超时：
+int countCompleteDayPairs(int* hours, int hoursSize) 
+{
+    int res=0;
+    // 外层循环，遍历数组中的每一个元素
+    for(int i=0;i<hoursSize;i++)
+    {
+        // 内层循环，从当前元素的下一个元素开始遍历，确保 i < j
+        for(int j=i+1;j<hoursSize;++j)
+        {
+            // 检查当前两个元素的和是否是 24 的整数倍
+            if(!((hours[i]+hours[j])%24))
+            {
+                // 如果是，则计数器加 1
+                res++;
+            }
+        }
+    }
+    return res;
+}
+*/
+~~~
+
+1. **准备一个计数数组**：
+
+   - 准备了一个大小为24的数组 `remainder_count`，用来记录每种余数出现的次数。因为一天有24小时，所以余数的范围是0到23。
+
+2. **初始化计数器**：
+
+   - 用一个变量 `count` 来记录满足条件的数对的数量，初始值为0。
+
+3. **遍历数组中的每一个数**：
+
+   - 对于数组hours中的每一个数，做以下几件事情：
+
+     - **计算当前数的余数**：用当前数对24取余，得到 `current_remainder`。
+     - **计算需要的余数**：为了使两个数加起来能被24整除，需要找到一个数，使得这两个数的余数之和为24（或者0）。因此，需要的余数是 `(24 - current_remainder) % 24`，记为 `needed_remainder`。
+     - **累加满足条件的数对**：在 `remainder_count` 中查找 `needed_remainder` 出现的次数，并将其加到 `count` 中。这表示找到了与当前数配对的所有可能的数。
+     - **更新当前余数的计数**：将 `current_remainder` 在 `remainder_count` 中的计数加1，表示又遇到了一个新的具有该余数的数。
+
+4. **返回结果**：
+
+   - 最后，返回 `count`，即满足条件的数对的数量。
