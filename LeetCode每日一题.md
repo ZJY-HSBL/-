@@ -275,3 +275,99 @@ int countCompleteDayPairs(int* hours, int hoursSize)
 4. **返回结果**：
 
    - 最后，返回 `count`，即满足条件的数对的数量。
+
+## 2024.10.26
+
+### 3181. 执行操作可获得的最大总奖励 II
+
+给你一个整数数组 `rewardValues`，长度为 `n`，代表奖励的值。
+
+最初，你的总奖励 `x` 为 0，所有下标都是 **未标记** 的。你可以执行以下操作 **任意次** ：
+
+- 从区间 `[0, n - 1]` 中选择一个 **未标记** 的下标 `i`。
+- 如果 `rewardValues[i]` **大于** 你当前的总奖励 `x`，则将 `rewardValues[i]` 加到 `x` 上（即 `x = x + rewardValues[i]`），并 **标记** 下标 `i`。
+
+以整数形式返回执行最优操作能够获得的 **最大** 总奖励。
+
+~~~c
+int cmp(const void *a, const void *b)
+{
+    return *(int*)a > *(int*)b;
+}
+
+int maxTotalReward(int* rewardValues, int rewardValuesSize)
+{
+    qsort(rewardValues, rewardValuesSize, sizeof(int), cmp);
+    // 计算dp数组大小并初始化
+    int size = rewardValues[rewardValuesSize - 1] / 32 + 2;
+    unsigned long long dp[size], temp, mask;
+    memset(dp, 0, sizeof(unsigned long long) * size);
+    int index, digit;
+    dp[0] = 1; // 初始状态
+
+    for (int i = 0; i < rewardValuesSize; ++i) 
+    {
+        // 根据当前奖励值确定在dp数组中的位置
+        index = rewardValues[i] / 64;
+        digit = rewardValues[i] % 64;
+        // 创建掩码以处理边界情况
+        mask = digit ? (1ULL << (64 - digit)) - 1 : 0;
+
+        // 更新dp数组
+        for (int j = 0; j < index; ++j)
+        {
+            if (digit) 
+            {
+                dp[j + index] |= (dp[j] & mask) << digit; // 左移并合并到新的位置
+                dp[j + index + 1] |= dp[j] >> (64 - digit); // 右移并合并到下一个位置
+            } 
+            else 
+            {
+                dp[j + index] |= dp[j]; // 直接合并
+            }
+        }
+
+        // 处理特殊情况
+        if (digit) 
+        {
+            temp = dp[index] & ((1ULL << digit) - 1); // 获取当前块的低digit位
+            dp[2 * index] |= (temp & mask) << digit; // 将其左移到新的块
+            dp[2 * index + 1] |= temp >> (64 - digit); // 将剩余的部分右移到下一个块
+        }
+    }
+
+    // 查找最大总奖励
+    for (int i = size - 1; i >= 0; --i) 
+    {
+        if (dp[i])
+            return 64 * i + 63 - __builtin_clzll(dp[i]); // 计算总奖励
+    }
+    return 0; // 如果没有找到有效的状态，返回0
+}
+~~~
+
+**比较函数 `cmp`**
+
+- 这个比较函数用于 `qsort` 函数来对整数数组进行排序。
+- 它将指针 `a` 和 `b` 转换成 `int*` 类型，并返回一个布尔值（在 C 中用整数表示），指示第一个元素是否大于第二个元素。
+- 注意这里的比较函数实际上会导致降序排序，因为当 `*(int*)a` 大于 `*(int*)b` 时，它返回一个正值。通常我们希望是升序排序，所以正确的实现应该是 `return *(int*)a - *(int*)b;` 或者 `return (*(int*)a > *(int*)b) - (*(int*)a < *(int*)b);`。
+
+**主要函数 `maxTotalReward`**
+
+**初始化**
+
+- 使用 `qsort` 对 `rewardValues` 数组进行排序。
+- `size` 是根据 `rewardValues` 中的最大值来决定 `dp` 数组的大小。这里假设每个 `unsigned long long` 可以表示 64 位的状态。
+- `dp` 数组被初始化为全 0，除了 `dp[0]` 被设置为 1，表示初始状态下总奖励为 0 是可行的。
+
+**动态规划更新**
+
+- 对于 `rewardValues` 中的每一个值，根据其大小来确定它在 `dp` 数组中的影响范围。
+- `index` 表示当前奖励值对应的 `dp` 数组的起始索引，`digit` 表示该值在 `dp` 数组中对应的具体位数。
+- `mask` 用于确保在位操作时不会超出 64 位限制。
+- 然后通过一系列的位操作更新 `dp` 数组，这包括左移、右移以及与操作。
+
+**结果查找**
+
+- 最后遍历 `dp` 数组，从高到低寻找第一个非零的 `dp` 值。
+- 使用 `__builtin_clzll` 来计算该值的第一个非零位的位置，从而得到最大可能的总奖励。
